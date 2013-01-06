@@ -18,11 +18,11 @@ see PROJECT-BASE-DIRECTORY.")
          it
          (asdf:find-system system-or-directory nil))))
 
-(defun project-base-directory (base-directory relative)
-  "The base directory, combined with RELATIVE."
+(defun project-base-directory (base-directory relative-path)
+  "The base directory, combined with RELATIVE-PATH when non-NIL."
   (let ((base-directory (project-base-directory% base-directory)))
-    (if relative
-        (merge-pathnames (cl-fad:pathname-as-directory relative)
+    (aif relative-path
+        (merge-pathnames (cl-fad:pathname-as-directory it)
                          base-directory)
         base-directory)))
 
