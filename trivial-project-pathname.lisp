@@ -1,6 +1,12 @@
 ;;; -*- Mode:Lisp; Syntax:ANSI-Common-Lisp; -*-
 
-(in-package #:trivial-project-pathname)
+(cl:defpackage #:trivial-project-pathname
+  (:use #:cl #:alexandria #:anaphora)
+  (:export
+   #:define-project-pathname
+   #:project-base-directory))
+
+(cl:in-package #:trivial-project-pathname)
 
 (defgeneric project-base-directory% (base-directory)
   (:documentation "The base directory from a specification.  Used internally,

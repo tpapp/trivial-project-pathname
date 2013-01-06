@@ -6,5 +6,4 @@
   :author "Tamas K. Papp <tkpapp@gmail.com>"
   :license "MIT"
   :depends-on (#:alexandria #:anaphora #:cl-fad)
-  :components ((:file "package")
-               (:file "trivial-project-pathname")))
+  :components ((:file "trivial-project-pathname")))
