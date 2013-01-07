@@ -1,18 +1,19 @@
 ;;; -*- Mode:Lisp; Syntax:ANSI-Common-Lisp; -*-
 
 (cl:defpackage #:trivial-project-pathname
+  (:nicknames #:project-pathname)
   (:use #:cl
         #:alexandria
         #:anaphora
         #:let-plus)
   (:export
-   #:project-base-directory
-   #:project-relative-directory
-   #:define-project-pathname))
+   #:base-directory
+   #:relative-directory
+   #:define))
 
 (cl:in-package #:trivial-project-pathname)
 
-(defun project-base-directory (type designator)
+(defun base-directory (type designator)
   "Return a directory (path).  Valid arguments are:
 
   :asdf system-designator
@@ -36,16 +37,15 @@
     (:directory-of (make-pathname :name nil :type nil
                                   :directory  (cl-fad:pathname-as-file designator)))))
 
-(defun project-relative-directory (type designator relative-path)
-  "When RELATIVE-PATH is not NIL, combine it with the base directory obtained from TYPE and DESIGNATOR (see PROJECT-BASE-DIRECTORY).  Otherwise just return the latter."
-  (let ((base-directory (project-base-directory type designator)))
+(defun relative-directory (type designator relative-path)
+  "When RELATIVE-PATH is not NIL, combine it with the base directory obtained from TYPE and DESIGNATOR (see BASE-DIRECTORY).  Otherwise just return the latter."
+  (let ((base-directory (base-directory type designator)))
     (aif relative-path
          (merge-pathnames (cl-fad:pathname-as-directory it)
                           base-directory)
          base-directory)))
 
-(defmacro define-project-pathname (function-specification directory-specification
-                                   &body subdirectories)
+(defmacro define (function-specification directory-specification &body subdirectories)
   "
 
 Arguments:
@@ -60,7 +60,7 @@ Arguments:
 
 Description:
 
-Defines (FUNCTION-NAME PATHSPEC &optional TYPE) that resolves path specifications relative to a base directory that is obtained by passing DIRECTORY-SPECIFICATION to PROJECT-RELATIVE-DIRECTORY (see its documentation for acceptable forms), then, if TYPE is given, merges the corresponding pathspec, then the pathspec in the argument.  SUBDIRECTORIES are passed on to CASE.
+Defines (FUNCTION-NAME PATHSPEC &optional TYPE) that resolves path specifications relative to a base directory that is obtained by passing DIRECTORY-SPECIFICATION to RELATIVE-DIRECTORY (see its documentation for acceptable forms), then, if TYPE is given, merges the corresponding pathspec, then the pathspec in the argument.  SUBDIRECTORIES are passed on to CASE.
 
 Example (using ASDF):
 
