@@ -31,8 +31,4 @@ Unless otherwise specified, =NIL=, the default for the optional parameter, would
   (project-path2 "my-data-file.csv")
 #+END_SRC
 
-You can also use =*load-truename*= to define =*base-directory*= in the =.asd= file [[http://xach.livejournal.com/294639.html][as recommended by Zach Beane]] and then define
-#+BEGIN_SRC lisp
-  (project-pathname:define project-path (:directory *base-directory*))
-#+END_SRC
-but there is not much benefit as that relies on ASDF too.  See the docstrings for other options.
+See the docstrings for alternatives to =:asdf= if you have some other way of establising the base directory (look for =:directory=, =:as-directory= and =:directory-of=).
