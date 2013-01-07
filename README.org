@@ -1,0 +1,31 @@
+A very simple Common Lisp library for resolving pathnames relative to some directory, usually the sources.
+
+The typical use case looks like this: I am working on, say, some data analysis and I have the following directory structure:
+
+| data  | where I data files are kept                        |
+| latex | LaTeX sources                                      |
+| lisp  | Common Lisp code, including ASDF system definition |
+| plots | plots (potentially generated from Lisp)            |
+
+I want to be able to write something like
+#+BEGIN_SRC lisp
+  (analyze-data-and-save-plot (project-path "mydata.csv" :data)
+                              (project-path "myplot.pdf" :plots))
+#+END_SRC
+and have the data read from =data/mydata.csv= and the plot saved to =plots/myplot.pdf=.
+
+This is how I would do it in using this library:
+
+#+BEGIN_SRC lisp
+  (project-pathname:define project-path (:asdf "myproject" '(:relative :up))
+    (:data "data/")
+    (:plots "plots/"))
+#+END_SRC
+
+This finds the directory for the =.asd= file, takes its parent directory, and then defines a function that maps symbols to subdirectories (unless otherwise specified, =NIL= would map to the base directory).
+
+You can also use =*load-truename*= to define =*base-directory*= in the =.asd= file [[http://xach.livejournal.com/294639.html][as recommended by Zach Beane]] and then define
+#+BEGIN_SRC lisp
+  (project-pathname:define project-path (:directory *base-directory*))
+#+END_SRC
+but there is not much benefit as that relies on ASDF too.  See the docstrings for other options.
