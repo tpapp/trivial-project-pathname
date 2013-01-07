@@ -2,10 +2,10 @@ A very simple Common Lisp library for resolving pathnames relative to some direc
 
 The typical use case looks like this: I am working on, say, some data analysis and I have the following directory structure:
 
-| data  | where I data files are kept                        |
-| latex | LaTeX sources                                      |
-| lisp  | Common Lisp code, including ASDF system definition |
-| plots | plots (potentially generated from Lisp)            |
+| data/  | where I data files are kept                        |
+| latex/ | LaTeX sources                                      |
+| lisp/  | Common Lisp code, including ASDF system definition |
+| plots/ | plots (potentially generated from Lisp)            |
 
 I want to be able to write something like
 #+BEGIN_SRC lisp
@@ -14,7 +14,7 @@ I want to be able to write something like
 #+END_SRC
 and have the data read from =data/mydata.csv= and the plot saved to =plots/myplot.pdf=.
 
-This is how I would do it in using this library:
+This is how I would do it using this library:
 
 #+BEGIN_SRC lisp
   (project-pathname:define project-path (:asdf "myproject" '(:relative :up))
@@ -22,7 +22,14 @@ This is how I would do it in using this library:
     (:plots "plots/"))
 #+END_SRC
 
-This finds the directory for the =.asd= file, takes its parent directory, and then defines a function that maps symbols to subdirectories (unless otherwise specified, =NIL= would map to the base directory).
+This finds the directory for the =.asd= file, takes its parent directory, and then defines a function that maps symbols to subdirectories.
+
+Unless otherwise specified, =NIL=, the default for the optional parameter, would map to the base directory.  You don't even need to use subdirectories, you can just
+#+BEGIN_SRC lisp
+  (project-pathname:define project-path2 (:asdf "myproject"))
+  ;;; and then use
+  (project-path2 "my-data-file.csv")
+#+END_SRC
 
 You can also use =*load-truename*= to define =*base-directory*= in the =.asd= file [[http://xach.livejournal.com/294639.html][as recommended by Zach Beane]] and then define
 #+BEGIN_SRC lisp
