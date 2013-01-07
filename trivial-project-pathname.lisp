@@ -35,8 +35,9 @@
                           "~A is not a directory."
                           (namestring it))))
     (:as-directory (cl-fad:pathname-as-directory designator))
-    (:directory-of (merge-pathnames (make-pathname :name nil :type nil)
-                                    (cl-fad:pathname-as-file designator)))))
+    (:directory-of (make-pathname :name nil :type nil
+                                  :directory (pathname-directory
+                                              (cl-fad:pathname-as-file designator))))))
 
 (defun relative-directory (type designator &optional relative-path)
   "When RELATIVE-PATH is not NIL, combine it with the base directory obtained from TYPE and DESIGNATOR (see BASE-DIRECTORY).  Otherwise just return the latter."
