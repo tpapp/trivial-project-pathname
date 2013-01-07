@@ -2,7 +2,7 @@ A very simple Common Lisp library for resolving pathnames relative to some direc
 
 The typical use case looks like this: I am working on, say, some data analysis and I have the following directory structure:
 
-| data/  | where I data files are kept                        |
+| data/  | where data files are kept                          |
 | latex/ | LaTeX sources                                      |
 | lisp/  | Common Lisp code, including ASDF system definition |
 | plots/ | plots (potentially generated from Lisp)            |
