@@ -2,6 +2,7 @@
 
 (cl:defpackage #:trivial-project-pathname
   (:use #:cl
+        #:alexandria
         #:anaphora
         #:let-plus)
   (:export
