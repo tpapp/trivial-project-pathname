@@ -18,7 +18,7 @@
   "Return a directory (path).  Valid arguments are:
 
   :asdf system-designator
-    Source directory of an ASDF system designated by SYSTEM-DESIGNATOR.  See ASDF:SYSTEM-SOURCE-DIRECTORY.
+    Source directory of an ASDF system designated by SYSTEM-DESIGNATOR.  See ASDF:SYSTEM-SOURCE-DIRECTORY.  Only available when ASDF is.
 
   :directory PATHSPEC
     Path specification.  Does not have to exist.  Checked for being a directory.
@@ -27,16 +27,16 @@
     Converted using CL-FAD:PATHNAME-AS-DIRECTORY.
 
   :directory-of PATHSPEC
-    Directory of PATHSPEC, first converted using CL-FAD:PATHNAME-AS-FILE."
+    Directory of PATHSPEC interpreted as a file."
   (ecase type
-    (:asdf (asdf:system-source-directory designator))
+    #+asdf2 (:asdf (asdf:system-source-directory designator))
     (:directory (aprog1 (pathname designator)
                   (assert (cl-fad:directory-pathname-p it) ()
                           "~A is not a directory."
                           (namestring it))))
     (:as-directory (cl-fad:pathname-as-directory designator))
-    (:directory-of (make-pathname :name nil :type nil
-                                  :directory  (cl-fad:pathname-as-file designator)))))
+    (:directory-of (merge-pathnames (make-pathname :name nil :type nil)
+                                    (cl-fad:pathname-as-file designator)))))
 
 (defun relative-directory (type designator &optional relative-path)
   "When RELATIVE-PATH is not NIL, combine it with the base directory obtained from TYPE and DESIGNATOR (see BASE-DIRECTORY).  Otherwise just return the latter."
