@@ -19,7 +19,8 @@
 
 
 
-(project-pathname:define project-pathname1 (:asdf "trivial-project-pathname"))
+(project-pathname:define project-pathname1 (:asdf "trivial-project-pathname")
+  "Project pathname defined using ASDF.")
 
 (defun system-relative-truename (name)
   (truename (asdf:system-relative-pathname "trivial-project-pathname" name)))
@@ -30,10 +31,12 @@
 
 (project-pathname:define (project-pathname2 :load-time-value? t)
     (:directory-of (system-relative-truename "trivial-project-pathname.lisp"))
+  "Project pathname defined using :DIRECTORY-OF, with subdirectories."
   (test "test-files/"))
 
 (project-pathname:define (project-pathname3 :load-time-value? t)
-    (:directory (system-relative-truename "")))
+    (:directory (system-relative-truename ""))
+  "Project pathname defined using :DIRECTORY.")
 
 (deftest test2 (tests)
   (assert-equal (truename (project-pathname2 "test-files/b"))

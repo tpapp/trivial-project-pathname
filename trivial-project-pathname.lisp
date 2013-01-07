@@ -79,12 +79,18 @@ Example (using ASDF, subdirectories):
     (:data \"data\"))
 "
   (let+ (((function &key load-time-value?) (ensure-list function-specification))
-         (directory-form `(relative-directory ,@directory-specification)))
+         (directory-form `(relative-directory ,@directory-specification))
+         ((&values subdirectories declarations docstring)
+          (if (and (not (cdr subdirectories)) (stringp (car subdirectories)))
+              (values nil nil (car subdirectories))
+              (parse-body subdirectories :documentation t))))
     `(defun ,function (filename &optional type)
+       ,@(when docstring `(,docstring))
        (let* ((directory ,(if load-time-value?
                               `(load-time-value ,directory-form t)
                               directory-form))
               (directory (let ((subdirectory
+                                 ,@declarations
                                  (ecase type
                                    ,@subdirectories
                                    ((nil) nil))))
