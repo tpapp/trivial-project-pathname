@@ -31,4 +31,4 @@ Unless otherwise specified, =NIL=, the default for the optional parameter, would
   (project-path2 "my-data-file.csv")
 #+END_SRC
 
-See the docstrings for alternatives to =:asdf= if you have some other way of establising the base directory (look for =:directory=, =:as-directory= and =:directory-of=).
+See the docstrings for alternatives to =:asdf= if you have some other way of establishing the base directory (look for =:directory=, =:as-directory= and =:directory-of=).
