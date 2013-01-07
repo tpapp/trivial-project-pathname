@@ -5,5 +5,7 @@
   :description "Simple Common Lisp library for project pathname management."
   :author "Tamas K. Papp <tkpapp@gmail.com>"
   :license "MIT"
-  :depends-on (#:alexandria #:anaphora #:cl-fad)
+  :depends-on (#:anaphora
+               #:cl-fad
+               #:let-plus)
   :components ((:file "trivial-project-pathname")))
