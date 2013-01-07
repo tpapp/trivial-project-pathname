@@ -9,7 +9,8 @@
   (:export
    #:base-directory
    #:relative-directory
-   #:define))
+   #:define
+   #:define-load-directory))
 
 (cl:in-package #:trivial-project-pathname)
 
@@ -37,7 +38,7 @@
     (:directory-of (make-pathname :name nil :type nil
                                   :directory  (cl-fad:pathname-as-file designator)))))
 
-(defun relative-directory (type designator relative-path)
+(defun relative-directory (type designator &optional relative-path)
   "When RELATIVE-PATH is not NIL, combine it with the base directory obtained from TYPE and DESIGNATOR (see BASE-DIRECTORY).  Otherwise just return the latter."
   (let ((base-directory (base-directory type designator)))
     (aif relative-path
@@ -46,13 +47,13 @@
          base-directory)))
 
 (defmacro define (function-specification directory-specification &body subdirectories)
-  "
+  "Define a function that resolves pathnames in a project.
 
 Arguments:
 
   function-specification := function-name | (function-name &key load-time-value?)
 
-  directory-specification is passed on to project-relative-directory
+  directory-specification is passed on to relative-directory
 
   subdirectories := (types pathspec)*
 
@@ -69,25 +70,26 @@ Example (using ASDF):
   (project-pathname1 \"trivial-project-pathname.lisp\")
       ; => the path to the source file of this function
 
-Example (using read-time evaluation, subdirectories)
+Example (using ASDF, subdirectories):
 
   (define-project-pathname project-pathname2
-    (:directory-of #.(or *compile-file-truename* *load-truename*)
-                   '(:relative :up))
+      (:asdf :my-project-that-has-code-in-a-subdirectory '(:relative :up))
+    (:plots \"plots/\")
+    (:data \"data\"))
 "
   (let+ (((function &key load-time-value?) (ensure-list function-specification))
-         (directory-form `(project-relative-directory ,@directory-specification)))
+         (directory-form `(relative-directory ,@directory-specification)))
     `(defun ,function (filename &optional type)
-       (let ((directory ,(if load-time-value?
-                             `(load-time-value ,directory-form t)
-                             directory-form))
-             (directory (let ((subdirectory
-                                (ecase type
-                                  ,@subdirectories
-                                  ((nil) nil))))
-                          (if subdirectory
-                              (progn
-                                (assert (cl-fad:directory-pathname-p subdirectory))
-                                (merge-pathnames subdirectory directory))
-                              directory))))
+       (let* ((directory ,(if load-time-value?
+                              `(load-time-value ,directory-form t)
+                              directory-form))
+              (directory (let ((subdirectory
+                                 (ecase type
+                                   ,@subdirectories
+                                   ((nil) nil))))
+                           (if subdirectory
+                               (progn
+                                 (assert (cl-fad:directory-pathname-p subdirectory))
+                                 (merge-pathnames subdirectory directory))
+                               directory))))
          (merge-pathnames filename directory)))))
