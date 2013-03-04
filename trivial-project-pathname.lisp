@@ -17,8 +17,8 @@
 (defun base-directory (type designator)
   "Return a directory (path).  Valid arguments are:
 
-  :asdf system-designator
-    Source directory of an ASDF system designated by SYSTEM-DESIGNATOR.  See ASDF:SYSTEM-SOURCE-DIRECTORY.  Only available when ASDF is.
+  :asdf SYSTEM-DESIGNATOR
+    Source directory of an ASDF system designated by SYSTEM-DESIGNATOR.  See ASDF:SYSTEM-SOURCE-DIRECTORY.  Only available when ASDF is.  Check that the system is found.
 
   :directory PATHSPEC
     Path specification.  Does not have to exist.  Checked for being a directory.
@@ -29,25 +29,26 @@
   :directory-of PATHSPEC
     Directory of PATHSPEC interpreted as a file."
   (ecase type
-    #+asdf2 (:asdf (asdf:system-source-directory designator))
-    (:directory (aprog1 (pathname designator)
-                  (assert (cl-fad:directory-pathname-p it) ()
-                          "~A is not a directory."
-                          (namestring it))))
+    #+asdf2 (:asdf (aprog1 (asdf:system-source-directory designator)
+                     (assert it () "System ~A not found." designator)))
+    (:directory  (aprog1 (pathname designator)
+                   (assert (cl-fad:directory-pathname-p it) ()
+                           "~A is not a directory." (namestring it))))
     (:as-directory (cl-fad:pathname-as-directory designator))
-    (:directory-of (make-pathname :name nil :type nil
+    (:directory-of (make-pathname :name nil
+                                  :type nil
                                   :directory (pathname-directory
                                               (cl-fad:pathname-as-file designator))))))
 
-(defun relative-directory (type designator &optional relative-path)
+(defun make-relative-directory (relative-directory)
+  "Create a pathname representing a relative directory from a list of directories (may contain :UP, etc)."
+  (make-pathname :directory (cons :relative relative-directory)))
+
+(defun relative-directory (type designator &rest relative-path)
   "When RELATIVE-PATH is not NIL, combine it with the base directory obtained from TYPE and DESIGNATOR (see BASE-DIRECTORY).  Otherwise just return the latter."
   (let ((base-directory (base-directory type designator)))
     (aif relative-path
-         (merge-pathnames (cl-fad:pathname-as-directory
-                           (atypecase it
-                             (list (make-pathname :directory it))
-                             (t it)))
-                          base-directory)
+         (merge-pathnames (make-relative-directory it) base-directory)
          base-directory)))
 
 (defmacro define (function-specification directory-specification &body subdirectories)
@@ -55,17 +56,19 @@
 
 Arguments:
 
-  function-specification := function-name | (function-name &key load-time-value?)
+  FUNCTION-SPECIFICATION := FUNCTION-NAME | (FUNCTION-NAME &key LOAD-TIME-VALUE?)
 
-  directory-specification is passed on to relative-directory
+  DIRECTORY-SPECIFICATION is passed on to RELATIVE-DIRECTORY
 
-  subdirectories := (types pathspec)*
+  SUBDIRECTORIES := (types . pathspec)*
 
   types := SYMBOL | (SYMBOL+)
 
+  pathspec := DIRECTORY+
+
 Description:
 
-Defines (FUNCTION-NAME PATHSPEC &optional TYPE) that resolves path specifications relative to a base directory that is obtained by passing DIRECTORY-SPECIFICATION to RELATIVE-DIRECTORY (see its documentation for acceptable forms), then, if TYPE is given, merges the corresponding pathspec, then the pathspec in the argument.  SUBDIRECTORIES are passed on to CASE.
+Defines (FUNCTION-NAME PATHSPEC &optional TYPE) that resolves path specifications relative to a base directory that is obtained by passing DIRECTORY-SPECIFICATION to RELATIVE-DIRECTORY (see its documentation for acceptable forms), then, if TYPE is given, merges the corresponding pathspec, then the pathspec in the argument.  SUBDIRECTORIES are passed on to CASE, forming a :RELATIVE pathname from a list of directories.
 
 Example (using ASDF):
 
@@ -77,7 +80,7 @@ Example (using ASDF):
 Example (using ASDF, subdirectories):
 
   (define-project-pathname project-pathname2
-      (:asdf :my-project-that-has-code-in-a-subdirectory '(:relative :up))
+      (:asdf :my-project-that-has-code-in-a-subdirectory :up))
     (:plots \"plots/\")
     (:data \"data\"))
 "
@@ -95,7 +98,10 @@ Example (using ASDF, subdirectories):
               (directory (let ((subdirectory
                                  ,@declarations
                                  (ecase type
-                                   ,@subdirectories
+                                   ,@(loop for (key . directory) in subdirectories
+                                           collect (list key
+                                                         (make-relative-directory
+                                                          directory)))
                                    ((nil) nil))))
                            (if subdirectory
                                (progn

@@ -17,9 +17,9 @@ and have the data read from =data/mydata.csv= and the plot saved to =plots/myplo
 This is how I would do it using this library:
 
 #+BEGIN_SRC lisp
-  (project-pathname:define project-path (:asdf "myproject" '(:relative :up))
-    (:data "data/")
-    (:plots "plots/"))
+  (project-pathname:define project-path (:asdf "myproject" :up)
+    (:data "data")
+    (:plots "plots"))
 #+END_SRC
 
 This finds the directory for the =.asd= file, takes its parent directory, and then defines a function that maps symbols to subdirectories.
