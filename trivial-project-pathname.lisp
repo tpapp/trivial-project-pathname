@@ -43,7 +43,10 @@
   "When RELATIVE-PATH is not NIL, combine it with the base directory obtained from TYPE and DESIGNATOR (see BASE-DIRECTORY).  Otherwise just return the latter."
   (let ((base-directory (base-directory type designator)))
     (aif relative-path
-         (merge-pathnames (cl-fad:pathname-as-directory it)
+         (merge-pathnames (cl-fad:pathname-as-directory
+                           (atypecase it
+                             (list (make-pathname :directory it))
+                             (t it)))
                           base-directory)
          base-directory)))
 
