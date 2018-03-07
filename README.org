@@ -1,3 +1,5 @@
+*IMPORTANT* This library is [[https://tpapp.github.io/post/orphaned-lisp-libraries/][abandonned]].
+
 A very simple Common Lisp library for resolving pathnames relative to some directory, usually the sources.
 
 The typical use case looks like this: I am working on, say, some data analysis and I have the following directory structure:
